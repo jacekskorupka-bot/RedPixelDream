@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">RedPixelDream</string>
+    <string name="no_events">Brak nadchodzących wydarzeń</string>
+    <string name="battery_placeholder">Bateria: --%</string>
+    <string name="battery_format">Bateria: %1$d%%</string>
+    <string name="alarm_none">Alarm: brak</string>
+    <string name="alarm_format">Alarm: %1$s</string>
+    <string name="today_header">DZIŚ:\n</string>
+    <string name="tomorrow_header">JUTRO:\n</string>
+    <string name="no_events_today_tomorrow">Brak wydarzeń na dziś i jutro</string>
 </resources>

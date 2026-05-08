@@ -1,5 +1,7 @@
 package com.example.redpixeldream
 
+import android.app.AlarmManager
+import android.content.Context
 import android.service.dreams.DreamService
 import android.widget.TextView
 import android.graphics.Color
@@ -40,12 +42,13 @@ class MyDreamService : DreamService() {
 
         // Zmniejszenie jasności ekranu (0.0 do 1.0)
         val params = window.attributes
-        params.screenBrightness = 0.02f // Bardzo niska jasność na noc
+        params.screenBrightness = 0.03f // Bardzo niska jasność na noc
         params.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         window.attributes = params
 
-        // Aktualizacja baterii
+        // Aktualizacja baterii i alarmu
         updateBatteryInfo()
+        updateAlarmInfo()
 
         // AKTUALIZACJA KALENDARZA
         val eventsTextView = findViewById<TextView>(R.id.events_text)
@@ -108,10 +111,10 @@ class MyDreamService : DreamService() {
 
                 if (eventDay != today && !showedTomorrowHeader) {
                     if (result.isNotEmpty()) result.append("\n")
-                    result.append("JUTRO:\n")
+                    result.append(getString(R.string.tomorrow_header))
                     showedTomorrowHeader = true
                 } else if (result.isEmpty() && eventDay == today) {
-                    result.append("DZIŚ:\n")
+                    result.append(getString(R.string.today_header))
                 }
 
                 if (result.isNotEmpty() && !result.endsWith(":\n")) {
@@ -123,7 +126,7 @@ class MyDreamService : DreamService() {
             cursor.close()
         }
 
-        return if (result.isEmpty()) "Brak wydarzeń na dziś i jutro" else result.toString()
+        return if (result.isEmpty()) getString(R.string.no_events_today_tomorrow) else result.toString()
     }
 
     private fun updateBatteryInfo() {
@@ -133,6 +136,20 @@ class MyDreamService : DreamService() {
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
 
         val batteryTextView = findViewById<TextView>(R.id.status_info)
-        batteryTextView?.text = "Bateria: $level%"
+        batteryTextView?.text = getString(R.string.battery_format, level)
+    }
+
+    private fun updateAlarmInfo() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val nextAlarm = alarmManager.nextAlarmClock
+        
+        val alarmTextView = findViewById<TextView>(R.id.alarm_info)
+        if (nextAlarm != null) {
+            val sdf = SimpleDateFormat("EEE HH:mm", Locale.getDefault())
+            val alarmTimeString = sdf.format(Date(nextAlarm.triggerTime))
+            alarmTextView?.text = getString(R.string.alarm_format, alarmTimeString)
+        } else {
+            alarmTextView?.text = getString(R.string.alarm_none)
+        }
     }
 }

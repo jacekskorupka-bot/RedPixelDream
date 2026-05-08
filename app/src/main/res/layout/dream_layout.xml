@@ -1,70 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/dream_root"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dream_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#000000"
+    android:orientation="vertical"
+    android:weightSum="100">
 
+    <!-- SEKCJA 1: CZAS (45%) -->
     <LinearLayout
-        android:id="@+id/dream_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="100">
+        android:layout_height="0dp"
+        android:layout_weight="45"
+        android:gravity="center">
 
-        <!-- SEKCJA 1: CZAS (45%) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="45"
-            android:gravity="center">
-
-            <TextClock
-                android:id="@+id/digital_clock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:format12Hour="HH:mm"
-                android:format24Hour="HH:mm"
-                android:textColor="#FF0000"
-                android:textSize="120sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- SEKCJA 2: KALENDARZ (45%) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="45"
-            android:orientation="vertical"
-            android:padding="24dp">
-
-            <TextView
-                android:id="@+id/events_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Brak nadchodzących wydarzeń"
-                android:textColor="#FF0000"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-        <!-- SEKCJA 3: STATUS (10%) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="10"
-            android:background="#0A0000"
-            android:gravity="center_vertical"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp">
-
-            <TextView
-                android:id="@+id/status_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bateria: --%"
-                android:textColor="#00FF00"
-                android:textSize="14sp" />
-        </LinearLayout>
+        <TextClock
+            android:id="@+id/digital_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:format12Hour="HH:mm"
+            android:format24Hour="HH:mm"
+            android:textColor="#FF0000"
+            android:textSize="120sp"
+            android:textStyle="bold" />
     </LinearLayout>
-</FrameLayout>
+
+    <!-- SEKCJA 2: KALENDARZ (45%) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="45"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/events_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_events"
+            android:textColor="#FF0000"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <!-- SEKCJA 3: STATUS (10%) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:background="#0A0000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/status_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/battery_placeholder"
+            android:textColor="#00FF00"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/alarm_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="@string/alarm_none"
+            android:textColor="#FF8800"
+            android:textSize="14sp" />
+    </LinearLayout>
+</LinearLayout>

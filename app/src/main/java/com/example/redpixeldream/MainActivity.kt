@@ -1,8 +1,8 @@
 package com.example.redpixeldream
 
 import android.os.Bundle
-import android.Manifest // DODAJ TO
-import android.content.pm.PackageManager // DODAJ TO
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -90,8 +90,12 @@ class MainActivity : AppCompatActivity() {
     private fun moveContentForBurnInProtection() {
         val random = Random()
         val padding = 30
-        dreamContainer.setPadding(random.nextInt(padding), random.nextInt(padding), 
-                                random.nextInt(padding), random.nextInt(padding))
+        dreamContainer.setPadding(
+            random.nextInt(padding),
+            random.nextInt(padding),
+            random.nextInt(padding),
+            random.nextInt(padding),
+        )
     }
 
     private fun getNextEvents(): String {
@@ -107,16 +111,16 @@ class MainActivity : AppCompatActivity() {
         val projection = arrayOf(CalendarContract.Instances.TITLE, CalendarContract.Instances.BEGIN)
         val cursor = CalendarContract.Instances.query(contentResolver, projection, startMillis, endOfTomorrow)
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if ((cursor != null) && cursor.moveToFirst()) {
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             val separator = "\n" + "─".repeat(20) + "\n"
-            val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+            val today = Calendar.getInstance()[Calendar.DAY_OF_YEAR]
             var showedTomorrowHeader = false
             
             do {
                 val title = cursor.getString(0)
                 val begin = cursor.getLong(1)
-                val eventDay = Calendar.getInstance().apply { timeInMillis = begin }.get(Calendar.DAY_OF_YEAR)
+                val eventDay = Calendar.getInstance().apply { timeInMillis = begin }[Calendar.DAY_OF_YEAR]
 
                 if (eventDay != today && !showedTomorrowHeader) {
                     if (result.isNotEmpty()) result.append("\n")
@@ -135,7 +139,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateBatteryInfo() {
-        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { registerReceiver(null, it) }
+        val batteryStatus: Intent? = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
         findViewById<TextView>(R.id.status_info)?.text = getString(R.string.battery_format, level)
     }

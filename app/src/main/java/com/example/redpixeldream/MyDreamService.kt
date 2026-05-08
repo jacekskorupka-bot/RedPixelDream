@@ -108,18 +108,18 @@ class MyDreamService : DreamService() {
             contentResolver, projection, startMillis, endOfTomorrow
         )
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if ((cursor != null) && cursor.moveToFirst()) {
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             val separator = "\n" + "─".repeat(20) + "\n"
             
-            val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+            val today = Calendar.getInstance()[Calendar.DAY_OF_YEAR]
             var showedTomorrowHeader = false
             
             do {
                 val title = cursor.getString(0)
                 val begin = cursor.getLong(1)
                 val eventTime = Calendar.getInstance().apply { timeInMillis = begin }
-                val eventDay = eventTime.get(Calendar.DAY_OF_YEAR)
+                val eventDay = eventTime[Calendar.DAY_OF_YEAR]
 
                 if (eventDay != today && !showedTomorrowHeader) {
                     if (result.isNotEmpty()) result.append("\n")
@@ -142,9 +142,7 @@ class MyDreamService : DreamService() {
     }
 
     private fun updateBatteryInfo() {
-        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
-            registerReceiver(null, ifilter)
-        }
+        val batteryStatus: Intent? = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
 
         val batteryTextView = findViewById<TextView>(R.id.status_info)

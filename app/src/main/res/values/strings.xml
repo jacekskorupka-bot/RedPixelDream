@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">RedPixelDream</string>
     <string name="no_events">Brak nadchodzących wydarzeń</string>
-    <string name="battery_placeholder">Bateria: --%</string>
+    <string name="battery_placeholder">Bateria: —%</string>
     <string name="battery_format">Bateria: %1$d%%</string>
     <string name="alarm_none">Alarm: brak</string>
     <string name="alarm_format">Alarm: %1$s</string>

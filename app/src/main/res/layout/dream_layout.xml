@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="45"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <TextClock
             android:id="@+id/digital_clock"
@@ -21,18 +22,33 @@
             android:fontFamily="sans-serif"
             android:format12Hour="HH:mm"
             android:format24Hour="HH:mm"
+            android:importantForAccessibility="yes"
             android:textColor="#FF0000"
-            android:textSize="120sp"
+            android:textSize="116sp"
             android:textStyle="bold" />
+
+        <TextClock
+            android:id="@+id/day_of_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:format12Hour="EEEE"
+            android:format24Hour="EEEE"
+            android:textAllCaps="true"
+            android:textColor="#FF0000"
+            android:textSize="24sp" />
     </LinearLayout>
 
-    <!-- SEKCJA 2: KALENDARZ (45%) -->
+    <!-- SEKCJA 2: KALENDARZ (50%) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="45"
+        android:layout_weight="50"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:id="@+id/events_text"
@@ -40,38 +56,40 @@
             android:layout_height="wrap_content"
             android:text="@string/no_events"
             android:textColor="#FF0000"
-            android:textSize="20sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- SEKCJA 3: STATUS (10%) -->
-    <LinearLayout
+    <!-- SEKCJA 3: STATUS (5%) -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"
+        android:layout_weight="5"
         android:background="#0A0000"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:weightSum="2">
+        android:paddingEnd="24dp">
 
         <TextView
             android:id="@+id/status_info"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/alarm_info"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="@string/battery_placeholder"
             android:textColor="#00FF00"
             android:textSize="14sp" />
 
         <TextView
             android:id="@+id/alarm_info"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:text="@string/alarm_none"
             android:textColor="#FF8800"
             android:textSize="14sp" />
-    </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

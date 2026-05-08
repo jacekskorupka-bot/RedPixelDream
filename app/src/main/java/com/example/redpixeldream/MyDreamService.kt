@@ -2,8 +2,10 @@ package com.example.redpixeldream
 
 import android.app.AlarmManager
 import android.content.Context
+import android.graphics.Paint
 import android.service.dreams.DreamService
 import android.widget.TextView
+import android.widget.TextClock
 import android.graphics.Color
 import android.view.Gravity
 import android.view.ViewGroup
@@ -49,6 +51,16 @@ class MyDreamService : DreamService() {
         // Aktualizacja baterii i alarmu
         updateBatteryInfo()
         updateAlarmInfo()
+
+        // Efekt obramowania dla godziny i dnia tygodnia
+        findViewById<TextClock>(R.id.digital_clock)?.apply {
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 3f
+        }
+        findViewById<TextClock>(R.id.day_of_week)?.apply {
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 1.5f
+        }
 
         // AKTUALIZACJA KALENDARZA
         val eventsTextView = findViewById<TextView>(R.id.events_text)

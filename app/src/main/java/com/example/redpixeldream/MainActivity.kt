@@ -9,9 +9,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 import android.app.AlarmManager
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Paint
 import android.os.BatteryManager
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +19,7 @@ import android.provider.CalendarContract
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
+import android.widget.TextClock
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -70,6 +71,17 @@ class MainActivity : AppCompatActivity() {
     private fun updateAllInfo() {
         updateBatteryInfo()
         updateAlarmInfo()
+        
+        // Efekt obramowania dla godziny i dnia tygodnia
+        findViewById<TextClock>(R.id.digital_clock)?.apply {
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 3f
+        }
+        findViewById<TextClock>(R.id.day_of_week)?.apply {
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 1.5f
+        }
+
         findViewById<TextView>(R.id.events_text)?.text = getNextEvents()
     }
 
@@ -129,7 +141,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateAlarmInfo() {
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         val nextAlarm = alarmManager.nextAlarmClock
         val alarmTextView = findViewById<TextView>(R.id.alarm_info)
         if (nextAlarm != null) {

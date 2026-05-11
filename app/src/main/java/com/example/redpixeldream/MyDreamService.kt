@@ -55,11 +55,13 @@ class MyDreamService : DreamService() {
         // Efekt obramowania dla godziny i dnia tygodnia
         findViewById<TextClock>(R.id.digital_clock)?.apply {
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 3f
+            paint.strokeWidth = 4f
+            paint.strokeJoin = Paint.Join.ROUND
+            paint.strokeCap = Paint.Cap.ROUND
         }
         findViewById<TextClock>(R.id.day_of_week)?.apply {
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 1.5f
+            paint.style = Paint.Style.FILL
+            paint.strokeWidth = 0f
         }
 
         // AKTUALIZACJA KALENDARZA

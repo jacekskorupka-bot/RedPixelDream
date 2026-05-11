@@ -2,8 +2,9 @@
 
 **RedPixelDream** to minimalistyczny i funkcjonalny wygaszacz ekranu (DreamService) dla systemu Android, zaprojektowany specjalnie do użytku nocnego. Aplikacja skupia się na czytelności, niskim obciążeniu wzroku oraz ochronie wyświetlaczy OLED/AMOLED przed wypaleniem.
 
-## 🌟 Funkcje (Wersja 0.6)
+## 🌟 Funkcje (Wersja 0.7)
 
+- **Wykrywanie Obecności (Proximity)**: NOWOŚĆ! Uruchamia wygaszacz automatycznie po wykryciu zbliżenia (np. machnięcie ręką nad telefonem), wybudzając przy tym ekran. Idealne, gdy chcesz sprawdzić godzinę bez dotykania urządzenia.
 - **Zegar nocny z obramowaniem**: Duży zegar w kolorze głębokiej czerwieni. Zastosowano unikalny efekt "pustej" czcionki (tylko kontur), co minimalizuje świecenie matrycy i chroni wzrok.
 - **Dynamiczny Dzień Tygodnia**: Pod godziną wyświetlana jest nazwa dnia w pasującym, smukłym stylu konturowym.
 - **Rozbudowany Kalendarz**: Automatyczne pobieranie wydarzeń z systemowego kalendarza na **dzisiaj** oraz **jutro** z wyraźnymi nagłówkami sekcji.

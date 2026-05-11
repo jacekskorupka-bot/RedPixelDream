@@ -36,6 +36,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Wybudzanie ekranu i działanie nad blokadą
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        
         enableEdgeToEdge()
         setContentView(R.layout.dream_layout)
         dreamContainer = findViewById(R.id.dream_container)
@@ -47,6 +52,9 @@ class MainActivity : AppCompatActivity() {
         if (checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.READ_CALENDAR), 100)
         }
+
+        // Uruchomienie usługi wykrywania zbliżenia
+        startForegroundService(Intent(this, ProximityService::class.java))
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.dream_container)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -122,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                 val begin = cursor.getLong(1)
                 val eventDay = Calendar.getInstance().apply { timeInMillis = begin }[Calendar.DAY_OF_YEAR]
 
-                if (eventDay != today && !showedTomorrowHeader) {
+                if ((eventDay != today) && !showedTomorrowHeader) {
                     if (result.isNotEmpty()) result.append("\n")
                     result.append(getString(R.string.tomorrow_header))
                     showedTomorrowHeader = true

@@ -45,6 +45,7 @@ Ten projekt jest wyjątkowy – został zbudowany w środowisku **Android Studio
 - **IDE**: Android Studio
 - **AI Support**: Gemini
 - **Architecture**: DreamService API, Foreground Services
+- **Tested on**: Google Pixel 6 Pro (Android 15/16)
 
 ## 📝 Autor / Author
 

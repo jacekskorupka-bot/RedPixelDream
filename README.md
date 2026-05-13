@@ -1,6 +1,6 @@
 # RedPixelDream
 
-**RedPixelDream** to minimalistyczny i funkcjonalny wygaszacz ekranu (DreamService) dla systemu Android, zaprojektowany specjalnie do użytku nocnego. Aplikacja skupia się na czytelności, niskim obciążeniu wzroku oraz ochronie wyświetlaczy OLED/AMOLED przed wypaleniem.
+**RedPixelDream** is a minimalist and functional screensaver (DreamService) for Android, designed specifically for nighttime use. The application focuses on readability, low eye strain, and protecting OLED/AMOLED displays from burn-in.
 
 ---
 ### 🤖 About the project

@@ -93,6 +93,68 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<TextView>(R.id.events_text)?.text = getNextEvents()
+        
+        // AKTUALIZACJA SIATKI MIESIĄCA
+        findViewById<TextView>(R.id.month_grid)?.text = generateMonthGrid()
+    }
+
+    private fun generateMonthGrid(): CharSequence {
+        val cal = Calendar.getInstance()
+        val today = cal[Calendar.DAY_OF_MONTH]
+        
+        cal.set(Calendar.DAY_OF_MONTH, 1)
+        val monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())?.uppercase()
+        val firstDayOfWeek = cal[Calendar.DAY_OF_WEEK]
+        
+        val offset = if (firstDayOfWeek == Calendar.SUNDAY) 6 else firstDayOfWeek - 2
+        val daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
+        
+        val sb = StringBuilder()
+        sb.append("$monthName\n")
+        sb.append("PN WT ŚR CZ PT SO ND\n")
+        
+        repeat(offset) { sb.append("   ") }
+        
+        val fullText = StringBuilder(sb.toString())
+        var todayStart = -1
+        var todayEnd = -1
+
+        for (i in offset until offset + daysInMonth) {
+            val currentDay = i - offset + 1
+            val dayStr = currentDay.toString().padStart(2)
+            
+            if (currentDay == today) {
+                todayStart = fullText.length
+                fullText.append(dayStr)
+                todayEnd = fullText.length
+            } else {
+                fullText.append(dayStr)
+            }
+            
+            if ((i + 1) % 7 == 0) fullText.append("\n") else fullText.append(" ")
+        }
+
+        val spannable = android.text.SpannableString(fullText)
+        if (todayStart != -1) {
+            // Tło: Pełny czerwony
+            spannable.setSpan(
+                android.text.style.BackgroundColorSpan(android.graphics.Color.RED),
+                todayStart, todayEnd, 
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            // Tekst: Czarny
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK),
+                todayStart, todayEnd, 
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                todayStart, todayEnd,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        return spannable
     }
 
     // --- LOGIKA KOPIOWANA Z MYDREAMSERVICE ---

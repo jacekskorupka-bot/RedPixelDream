@@ -3,43 +3,52 @@
 **RedPixelDream** to minimalistyczny i funkcjonalny wygaszacz ekranu (DreamService) dla systemu Android, zaprojektowany specjalnie do użytku nocnego. Aplikacja skupia się na czytelności, niskim obciążeniu wzroku oraz ochronie wyświetlaczy OLED/AMOLED przed wypaleniem.
 
 ---
-### 🤖 O projekcie
-Ten projekt jest wyjątkowy – został zbudowany w środowisku **Android Studio** przy ścisłej współpracy człowieka z potężnym modelem AI **Gemini**. Dzięki połączeniu kreatywnej wizji autora i wsparcia technologicznego AI, udało się stworzyć narzędzie, które łączy luksusową estetykę z wysoką funkcjonalnością.
+### 🤖 O projekcie / About the project
+Ten projekt jest wyjątkowy – został zbudowany w środowisku **Android Studio** przy ścisłej współpracy człowieka z potężnym modelem AI **Gemini**. 
+*This project is unique – it was built in **Android Studio** through close collaboration between a human developer and the **Gemini** AI model.*
 
 ---
 
-## 🌟 Funkcje (Wersja 1.0 - Stable)
+## 🌟 Funkcje / Features (V1.0 Stable)
 
-- **Luksusowy Design (Inter/Montserrat Style)**: Zegar w kolorze głębokiej czerwieni z unikalnym efektem konturu (outline), co minimalizuje świecenie matrycy i chroni wzrok.
-- **Wykrywanie Obecności (Proximity)**: Uruchamia wygaszacz automatycznie po wykryciu zbliżenia (np. machnięcie ręką nad telefonem), wybudzając przy tym ekran.
-- **Podwójny Kalendarz**: 
-    - Lista wydarzeń na **dzisiaj** i **jutro**.
-    - Graficzna siatka miesiąca z wyraźnym, negatywowym zaznaczeniem bieżącego dnia.
-- **Pasek Statusu 50/50**: Informacje o poziomie baterii (zielony) oraz najbliższym alarmie (pomarańczowy).
-- **Battery Protection**: Ostrzeżenie wizualne (żółty kolor i napis 80% LIMIT), gdy poziom naładowania przekroczy bezpieczny próg.
-- **Zaawansowana ochrona Burn-in**: Inteligentny system "Pixel Shift" przesuwający zawartość ekranu co 60 sekund.
-- **Ultra-niska jasność**: Automatyczne wymuszanie jasności 0.03f dla komfortu w nocy.
-- **Wymuszona orientacja Landscape**: Idealna dla telefonów na ładowarkach i podstawkach.
+- **Luksusowy Design / Luxury Design**: 
+  - **PL:** Zegar w kolorze głębokiej czerwieni z efektem konturu (outline).
+  - **EN:** Deep red clock with a premium outline effect for minimal screen glow.
+- **Wykrywanie Obecności / Proximity Detection**: 
+  - **PL:** Automatyczne wybudzanie po wykryciu ruchu (machnięcie ręką).
+  - **EN:** Automatically wakes up when proximity is detected (hand wave).
+- **Podwójny Kalendarz / Dual Calendar View**: 
+  - **PL:** Lista wydarzeń (dziś/jutro) + graficzna siatka miesiąca.
+  - **EN:** Event list (today/tomorrow) + graphical monthly grid.
+- **Battery Protection**: 
+  - **PL:** Ostrzeżenie wizualne (80% LIMIT) chroniące żywotność ogniwa.
+  - **EN:** Visual warning (80% LIMIT) to protect battery health.
+- **Burn-in Protection**: 
+  - **PL:** System "Pixel Shift" zapobiegający utrwalaniu obrazu.
+  - **EN:** "Pixel Shift" system to prevent image retention on AMOLED screens.
+- **Ultra-niska jasność / Ultra-low Brightness**: 
+  - **PL:** Automatyczne 0.03f dla komfortu w całkowitej ciemności.
+  - **EN:** Automatic 0.03f brightness for perfect night comfort.
 
-## 🚀 Jak używać?
+## 🚀 Jak używać? / How to use?
 
-1. **Instalacja**: Skompiluj projekt w Android Studio i zainstaluj na telefonie.
-2. **Uprawnienia**: Przy pierwszym uruchomieniu nadaj uprawnienie do kalendarza oraz (ważne!) "Wyświetlaj nad innymi aplikacjami" w ustawieniach systemowych Androida.
-3. **Aktywacja**:
-   - Wejdź w **Ustawienia systemu Android**.
-   - Przejdź do: **Wyświetlacz** -> **Wygaszacz ekranu**.
-   - Wybierz **Czerwony Pixel**.
+1. **Instalacja / Installation**: Compile in Android Studio & install on your device.
+2. **Uprawnienia / Permissions**: 
+   - Grant **Calendar** access.
+   - Enable **"Display over other apps"** in Android Settings.
+3. **Aktywacja / Activation**: 
+   - Settings -> Display -> Screen Saver -> Select **Czerwony Pixel**.
 
-## 🛠️ Technologie
+## 🛠️ Technologie / Tech Stack
 
-- **Język**: Kotlin
+- **Language**: Kotlin
 - **IDE**: Android Studio
 - **AI Support**: Gemini
-- **Architektura**: DreamService API, Foreground Services (Sensors)
+- **Architecture**: DreamService API, Foreground Services
 
-## 📝 Autor
+## 📝 Autor / Author
 
-**Jack** - [Profil GitHub](https://github.com/jacekskorupka-bot)
+**Jack** - [GitHub Profile](https://github.com/jacekskorupka-bot)
 
 ---
-*Projekt RedPixelDream v1.0 - Stworzony z pasją, zbudowany z inteligencją.*
+*Created with passion, built with intelligence.*

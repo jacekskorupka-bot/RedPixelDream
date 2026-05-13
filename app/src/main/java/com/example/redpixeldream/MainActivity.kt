@@ -80,10 +80,10 @@ class MainActivity : AppCompatActivity() {
         updateBatteryInfo()
         updateAlarmInfo()
         
-        // Efekt obramowania dla godziny i dnia tygodnia
+        // Efekt obramowania dla godziny i dnia tygodnia (Styl "Bold Outline")
         findViewById<TextClock>(R.id.digital_clock)?.apply {
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 4f
+            paint.strokeWidth = 4f // Grubsza linia dla efektu bold
             paint.strokeJoin = Paint.Join.ROUND
             paint.strokeCap = Paint.Cap.ROUND
         }
@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                     if (result.isNotEmpty()) result.append("\n")
                     result.append(getString(R.string.tomorrow_header))
                     showedTomorrowHeader = true
-                } else if (result.isEmpty() && eventDay == today) {
+                } else if ((result.isEmpty()) && (eventDay == today)) {
                     result.append(getString(R.string.today_header))
                 }
 
@@ -151,7 +151,15 @@ class MainActivity : AppCompatActivity() {
     private fun updateBatteryInfo() {
         val batteryStatus: Intent? = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-        findViewById<TextView>(R.id.status_info)?.text = getString(R.string.battery_format, level)
+        val batteryTextView = findViewById<TextView>(R.id.status_info)
+        // Ograniczenie i wizualne powiadomienie o poziomie 80% (ochrona baterii)
+        if (level >= 80) {
+            batteryTextView?.setTextColor(android.graphics.Color.YELLOW)
+            batteryTextView?.text = getString(R.string.battery_limit_format, level)
+        } else {
+            batteryTextView?.setTextColor(android.graphics.Color.GREEN)
+            batteryTextView?.text = getString(R.string.battery_format, level)
+        }
     }
 
     private fun updateAlarmInfo() {

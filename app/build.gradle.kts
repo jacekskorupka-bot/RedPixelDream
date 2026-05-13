@@ -4,16 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.redpixeldream"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.redpixeldream"
-        minSdk = 36
-        targetSdk = 36
+        minSdk = 27
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -25,7 +21,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -33,6 +29,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    buildToolsVersion = rootProject.extra["buildToolsVersion"] as String
 }
 
 dependencies {

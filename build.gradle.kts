@@ -2,3 +2,4 @@
 plugins {
     alias(libs.plugins.android.application) apply false
 }
+val buildToolsVersion by extra("36.1.0")

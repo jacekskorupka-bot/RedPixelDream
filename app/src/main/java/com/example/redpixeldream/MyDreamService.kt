@@ -52,10 +52,10 @@ class MyDreamService : DreamService() {
         updateBatteryInfo()
         updateAlarmInfo()
 
-        // Efekt obramowania dla godziny i dnia tygodnia
+        // Efekt obramowania dla godziny i dnia tygodnia (Styl "Bold Outline")
         findViewById<TextClock>(R.id.digital_clock)?.apply {
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 4f
+            paint.strokeWidth = 4f // Grubsza linia dla efektu bold
             paint.strokeJoin = Paint.Join.ROUND
             paint.strokeCap = Paint.Cap.ROUND
         }
@@ -148,7 +148,14 @@ class MyDreamService : DreamService() {
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
 
         val batteryTextView = findViewById<TextView>(R.id.status_info)
-        batteryTextView?.text = getString(R.string.battery_format, level)
+        // Ograniczenie i wizualne powiadomienie o poziomie 80% (ochrona baterii)
+        if (level >= 80) {
+            batteryTextView?.setTextColor(Color.YELLOW)
+            batteryTextView?.text = getString(R.string.battery_limit_format, level)
+        } else {
+            batteryTextView?.setTextColor(Color.GREEN)
+            batteryTextView?.text = getString(R.string.battery_format, level)
+        }
     }
 
     private fun updateAlarmInfo() {

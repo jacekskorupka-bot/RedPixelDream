@@ -29,7 +29,16 @@
         android:max="100"
         android:progress="3"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="8dp"/>
+
+    <Switch
+        android:id="@+id/switch_auto_night"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Auto jasność nocna (22:00-06:00)"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp"
+        android:checked="true"/>
 
     <TextView
         android:layout_width="wrap_content"

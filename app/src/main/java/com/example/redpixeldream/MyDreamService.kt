@@ -49,18 +49,19 @@ class MyDreamService : DreamService() {
         isFullscreen = true
 
         val prefs = getSharedPreferences("dream_prefs", Context.MODE_PRIVATE)
-        val userBrightness = prefs.getFloat("brightness", 0.03f)
-        clockColor = prefs.getInt("clock_color", Color.RED)
+        val clockColor = prefs.getInt("clock_color", Color.RED)
+        val brightnessToApply = getEffectiveBrightness(prefs)
 
         setContentView(R.layout.dream_layout)
         dreamContainer = findViewById(R.id.dream_container)
 
         // Zastosowanie jasności
         val params = window.attributes
-        params.screenBrightness = userBrightness
+        params.screenBrightness = brightnessToApply
         params.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         window.attributes = params
 
+        this.clockColor = clockColor
         applyColors()
         
         // Aktualizacja baterii i alarmu
@@ -266,6 +267,18 @@ class MyDreamService : DreamService() {
         } else {
             alarmTextView?.text = getString(R.string.alarm_none)
         }
+    }
+
+    private fun getEffectiveBrightness(prefs: android.content.SharedPreferences): Float {
+        val autoNight = prefs.getBoolean("auto_night", true)
+        val userBrightness = prefs.getFloat("brightness", 0.03f)
+        if (autoNight) {
+            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+            if (hour >= 22 || hour < 6) {
+                return 0.01f
+            }
+        }
+        return userBrightness
     }
 
     private fun updateWeatherInfo() {

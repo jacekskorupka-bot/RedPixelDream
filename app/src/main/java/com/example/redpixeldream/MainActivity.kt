@@ -88,11 +88,13 @@ class MainActivity : AppCompatActivity() {
     private fun initSettings() {
         val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
         val brightnessSeekBar = findViewById<SeekBar>(R.id.brightness_seekbar)
+        val autoNightSwitch = findViewById<Switch>(R.id.switch_auto_night)
         val colorGroup = findViewById<RadioGroup>(R.id.color_group)
         val saveButton = findViewById<Button>(R.id.btn_save)
 
         // Load current values
         brightnessSeekBar.progress = (prefs.getFloat("brightness", 0.03f) * 100).toInt()
+        autoNightSwitch.isChecked = prefs.getBoolean("auto_night", true)
         val currentColor = prefs.getInt("clock_color", android.graphics.Color.RED)
         when (currentColor) {
             android.graphics.Color.RED -> colorGroup.check(R.id.radio_red)
@@ -102,6 +104,7 @@ class MainActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             val brightness = brightnessSeekBar.progress / 100f
+            val isAutoNight = autoNightSwitch.isChecked
             val selectedColor = when (colorGroup.checkedRadioButtonId) {
                 R.id.radio_amber -> android.graphics.Color.parseColor("#FFBF00")
                 R.id.radio_green -> android.graphics.Color.GREEN
@@ -110,6 +113,7 @@ class MainActivity : AppCompatActivity() {
 
             prefs.edit().apply {
                 putFloat("brightness", brightness)
+                putBoolean("auto_night", isAutoNight)
                 putInt("clock_color", selectedColor)
                 apply()
             }

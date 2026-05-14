@@ -55,11 +55,11 @@ class ClockActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("dream_prefs", Context.MODE_PRIVATE)
         clockColor = prefs.getInt("clock_color", Color.RED)
-        val userBrightness = prefs.getFloat("brightness", 0.03f)
+        val brightnessToApply = getEffectiveBrightness(prefs)
 
         // Jasność
         val params = window.attributes
-        params.screenBrightness = userBrightness
+        params.screenBrightness = brightnessToApply
         window.attributes = params
 
         applyColors()
@@ -68,6 +68,18 @@ class ClockActivity : AppCompatActivity() {
 
         // Zamknij po dotknięciu (jak wygaszacz)
         dreamContainer.setOnClickListener { finish() }
+    }
+
+    private fun getEffectiveBrightness(prefs: android.content.SharedPreferences): Float {
+        val autoNight = prefs.getBoolean("auto_night", true)
+        val userBrightness = prefs.getFloat("brightness", 0.03f)
+        if (autoNight) {
+            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+            if (hour >= 22 || hour < 6) {
+                return 0.01f
+            }
+        }
+        return userBrightness
     }
 
     private fun setupWakeFlags() {

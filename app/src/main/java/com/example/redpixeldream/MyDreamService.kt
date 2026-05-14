@@ -312,9 +312,11 @@ class MyDreamService : DreamService() {
                     val json = JSONObject(response)
                     val currentWeather = json.getJSONObject("current_weather")
                     val temp = currentWeather.getDouble("temperature")
+                    val code = currentWeather.getInt("weathercode")
+                    val description = getWeatherDescription(code)
 
                     handler.post {
-                        weatherTextView.text = getString(R.string.weather_format, cityName, temp)
+                        weatherTextView.text = getString(R.string.weather_format, cityName, description, temp)
                     }
                 }
             } catch (e: Exception) {
@@ -322,6 +324,23 @@ class MyDreamService : DreamService() {
                     weatherTextView.text = "Błąd pogody"
                 }
             }
+        }
+    }
+
+    private fun getWeatherDescription(code: Int): String {
+        return when (code) {
+            0 -> "Jasno"
+            1, 2, 3 -> "Zachmurzenie"
+            45, 48 -> "Mgła"
+            51, 53, 55 -> "Mżawka"
+            61, 63, 65 -> "Deszcz"
+            66, 67 -> "Marznący deszcz"
+            71, 73, 75 -> "Śnieg"
+            77 -> "Grad"
+            80, 81, 82 -> "Ulewa"
+            85, 86 -> "Zamieć śnieżna"
+            95, 96, 99 -> "Burza"
+            else -> "Nieznana"
         }
     }
 }

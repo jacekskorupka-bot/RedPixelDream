@@ -29,6 +29,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ClockActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.RedPixelDream" />
+
         <service
             android:name=".ProximityService"
             android:enabled="true"

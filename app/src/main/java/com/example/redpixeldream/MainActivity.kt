@@ -51,9 +51,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Uruchomienie usługi wykrywania zbliżenia
+        android.util.Log.d("MainActivity", "Starting ProximityService")
         startForegroundService(Intent(this, ProximityService::class.java))
 
+        checkOverlayPermission()
         initSettings()
+    }
+
+    private fun checkOverlayPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Włącz 'Wyświetlanie nad innymi aplikacjami', aby wybudzanie działało", Toast.LENGTH_LONG).show()
+                val intent = Intent(
+                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    android.net.Uri.parse("package:$packageName")
+                )
+                startActivity(intent)
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -9,9 +9,11 @@ import android.hardware.SensorManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 
 class ProximityService : Service(), SensorEventListener {
+    private val TAG = "ProximityService"
     private lateinit var sensorManager: SensorManager
     private var proximitySensor: Sensor? = null
 
@@ -47,12 +49,19 @@ class ProximityService : Service(), SensorEventListener {
         val distance = event?.values?.get(0) ?: 1f
         val maxRange = proximitySensor?.maximumRange ?: 0f
         
-        // Jeśli coś jest blisko (distance < maxRange)
+        Log.d(TAG, "Sensor value: $distance, Max range: $maxRange")
+        
+        // Jeśli coś jest blisko (zazwyczaj 0.0)
         if (distance < maxRange) {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            Log.d(TAG, "Object detected! Attempting to wake up ClockActivity...")
+            val intent = Intent(this, ClockActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
-            startActivity(intent)
+            try {
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start activity: ${e.message}")
+            }
         }
     }
 

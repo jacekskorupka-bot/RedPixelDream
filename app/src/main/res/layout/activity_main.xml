@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#121212">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ustawienia RedPixelDream"
+        android:textColor="#FF0000"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jasność wygaszacza"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"/>
+
+    <SeekBar
+        android:id="@+id/brightness_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="3"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kolor zegara"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"/>
+
+    <RadioGroup
+        android:id="@+id/color_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <RadioButton
+            android:id="@+id/radio_red"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Czerwony"
+            android:textColor="#FF0000"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/radio_amber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bursztynowy"
+            android:textColor="#FFBF00"/>
+
+        <RadioButton
+            android:id="@+id/radio_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zielony"
+            android:textColor="#00FF00"/>
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Zapisz ustawienia"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#FF0000"
+        android:textColor="#FFFFFF"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wskazówka: Aby włączyć wygaszacz, przejdź do Ustawień systemowych -> Wyświetlacz -> Wygaszacz ekranu."
+        android:textColor="#888888"
+        android:layout_marginTop="24dp"
+        android:textSize="12sp"/>
+
+</LinearLayout>

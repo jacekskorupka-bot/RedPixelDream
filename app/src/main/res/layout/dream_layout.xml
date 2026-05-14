@@ -20,7 +20,7 @@
         <TextClock
             android:id="@+id/digital_clock"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="127dp"
             android:fontFamily="sans-serif-light"
             android:format12Hour="HH:mm"
             android:format24Hour="HH:mm"
@@ -107,12 +107,21 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/alarm_info"
-            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@string/battery_placeholder"
             android:textColor="#00FF00"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/weather_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/weather_loading"
+            android:textColor="#FF0000"
             android:textSize="14sp" />
 
         <TextView

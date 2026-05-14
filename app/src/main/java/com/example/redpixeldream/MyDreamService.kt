@@ -16,16 +16,25 @@ import android.content.pm.ActivityInfo
 import android.os.BatteryManager
 import android.os.Handler
 import android.os.Looper
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
 import android.provider.CalendarContract
 import android.view.View
 import android.view.WindowManager
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.thread
 
 class MyDreamService : DreamService() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var dreamContainer: View
+    private var clockColor: Int = Color.RED
+
     private val moveRunnable = object : Runnable {
         override fun run() {
             moveContentForBurnInProtection()
@@ -39,30 +48,24 @@ class MyDreamService : DreamService() {
         isInteractive = false
         isFullscreen = true
 
+        val prefs = getSharedPreferences("dream_prefs", Context.MODE_PRIVATE)
+        val userBrightness = prefs.getFloat("brightness", 0.03f)
+        clockColor = prefs.getInt("clock_color", Color.RED)
+
         setContentView(R.layout.dream_layout)
         dreamContainer = findViewById(R.id.dream_container)
 
-        // Zmniejszenie jasności ekranu (0.0 do 1.0)
+        // Zastosowanie jasności
         val params = window.attributes
-        params.screenBrightness = 0.03f // Bardzo niska jasność na noc
+        params.screenBrightness = userBrightness
         params.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         window.attributes = params
 
+        applyColors()
+        
         // Aktualizacja baterii i alarmu
         updateBatteryInfo()
         updateAlarmInfo()
-
-        // Efekt obramowania dla godziny i dnia tygodnia (Styl "Bold Outline")
-        findViewById<TextClock>(R.id.digital_clock)?.apply {
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 4f // Grubsza linia dla efektu bold
-            paint.strokeJoin = Paint.Join.ROUND
-            paint.strokeCap = Paint.Cap.ROUND
-        }
-        findViewById<TextClock>(R.id.day_of_week)?.apply {
-            paint.style = Paint.Style.FILL
-            paint.strokeWidth = 0f
-        }
 
         // AKTUALIZACJA KALENDARZA
         val eventsTextView = findViewById<TextView>(R.id.events_text)
@@ -71,8 +74,31 @@ class MyDreamService : DreamService() {
         // AKTUALIZACJA SIATKI MIESIĄCA
         updateMonthGrid()
 
+        // AKTUALIZACJA POGODY I LOKALIZACJI
+        updateWeatherInfo()
+
         // Uruchomienie ochrony przed wypaleniem
         handler.post(moveRunnable)
+    }
+
+    private fun applyColors() {
+        // Efekt obramowania dla godziny i dnia tygodnia (Styl "Bold Outline")
+        findViewById<TextClock>(R.id.digital_clock)?.apply {
+            setTextColor(clockColor)
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = 4f 
+            paint.strokeJoin = Paint.Join.ROUND
+            paint.strokeCap = Paint.Cap.ROUND
+        }
+        findViewById<TextClock>(R.id.day_of_week)?.apply {
+            setTextColor(clockColor)
+            paint.style = Paint.Style.FILL
+            paint.strokeWidth = 0f
+        }
+        
+        findViewById<TextView>(R.id.events_text)?.setTextColor(clockColor)
+        findViewById<TextView>(R.id.month_grid)?.setTextColor(clockColor)
+        findViewById<TextView>(R.id.weather_info)?.setTextColor(clockColor)
     }
 
     private fun updateMonthGrid() {
@@ -84,12 +110,10 @@ class MyDreamService : DreamService() {
         val cal = Calendar.getInstance()
         val today = cal[Calendar.DAY_OF_MONTH]
         
-        // Ustawienie na pierwszy dzień miesiąca
         cal.set(Calendar.DAY_OF_MONTH, 1)
         val monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())?.uppercase()
-        val firstDayOfWeek = cal[Calendar.DAY_OF_WEEK] // 1=Sun, 2=Mon...
+        val firstDayOfWeek = cal[Calendar.DAY_OF_WEEK] 
         
-        // Dostosowanie do polskiego tygodnia (Pn-Nd)
         val offset = if (firstDayOfWeek == Calendar.SUNDAY) 6 else firstDayOfWeek - 2
         val daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
         
@@ -97,7 +121,6 @@ class MyDreamService : DreamService() {
         sb.append("$monthName\n")
         sb.append("PN WT ŚR CZ PT SO ND\n")
         
-        // Spacje początkowe
         repeat(offset) {
             sb.append("   ")
         }
@@ -127,13 +150,13 @@ class MyDreamService : DreamService() {
 
         val spannable = android.text.SpannableString(fullText)
         if (todayStart != -1) {
-            // Tło: Pełny czerwony
+            // Tło: Kolor wybrany przez użytkownika
             spannable.setSpan(
-                android.text.style.BackgroundColorSpan(Color.RED),
+                android.text.style.BackgroundColorSpan(clockColor),
                 todayStart, todayEnd, 
                 android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            // Tekst: Czarny (dla kontrastu na czerwonym tle)
+            // Tekst: Czarny (kontrast)
             spannable.setSpan(
                 android.text.style.ForegroundColorSpan(Color.BLACK),
                 todayStart, todayEnd, 
@@ -156,7 +179,7 @@ class MyDreamService : DreamService() {
 
     private fun moveContentForBurnInProtection() {
         val random = Random()
-        val padding = 30 // Maksymalne przesunięcie w pikselach
+        val padding = 30 
         val padLeft = random.nextInt(padding)
         val padTop = random.nextInt(padding)
         val padRight = random.nextInt(padding)
@@ -169,8 +192,6 @@ class MyDreamService : DreamService() {
         val result = StringBuilder()
         val now = Calendar.getInstance()
         val startMillis = now.timeInMillis
-        
-        // Koniec jutrzejszego dnia
         val endOfTomorrow = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, 1)
             set(Calendar.HOUR_OF_DAY, 23)
@@ -190,7 +211,6 @@ class MyDreamService : DreamService() {
         if ((cursor != null) && cursor.moveToFirst()) {
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             val separator = "\n" + "─".repeat(20) + "\n"
-            
             val today = Calendar.getInstance()[Calendar.DAY_OF_YEAR]
             var showedTomorrowHeader = false
             
@@ -225,7 +245,6 @@ class MyDreamService : DreamService() {
         val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
 
         val batteryTextView = findViewById<TextView>(R.id.status_info)
-        // Ograniczenie i wizualne powiadomienie o poziomie 80% (ochrona baterii)
         if (level >= 80) {
             batteryTextView?.setTextColor(Color.YELLOW)
             batteryTextView?.text = getString(R.string.battery_limit_format, level)
@@ -246,6 +265,50 @@ class MyDreamService : DreamService() {
             alarmTextView?.text = getString(R.string.alarm_format, alarmTimeString)
         } else {
             alarmTextView?.text = getString(R.string.alarm_none)
+        }
+    }
+
+    private fun updateWeatherInfo() {
+        val weatherTextView = findViewById<TextView>(R.id.weather_info) ?: return
+        
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            weatherTextView.text = "Brak uprawnień lokalizacji"
+            return
+        }
+
+        thread {
+            try {
+                val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                val providers = locationManager.getProviders(true)
+                var bestLocation: Location? = null
+                for (provider in providers) {
+                    val l = locationManager.getLastKnownLocation(provider) ?: continue
+                    if (bestLocation == null || l.accuracy < bestLocation.accuracy) {
+                        bestLocation = l
+                    }
+                }
+
+                bestLocation?.let { location ->
+                    val geocoder = Geocoder(this, Locale.getDefault())
+                    val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                    val cityName = addresses?.firstOrNull()?.locality ?: "Nieznana lokalizacja"
+
+                    val url = URL("https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true")
+                    val connection = url.openConnection() as HttpURLConnection
+                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(response)
+                    val currentWeather = json.getJSONObject("current_weather")
+                    val temp = currentWeather.getDouble("temperature")
+
+                    handler.post {
+                        weatherTextView.text = getString(R.string.weather_format, cityName, temp)
+                    }
+                }
+            } catch (e: Exception) {
+                handler.post {
+                    weatherTextView.text = "Błąd pogody"
+                }
+            }
         }
     }
 }

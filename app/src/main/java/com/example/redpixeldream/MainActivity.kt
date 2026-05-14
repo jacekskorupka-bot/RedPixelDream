@@ -33,6 +33,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Wybudzanie ekranu i działanie nad blokadą
+        setupWakeFlags()
+        
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
@@ -50,6 +54,20 @@ class MainActivity : AppCompatActivity() {
         startForegroundService(Intent(this, ProximityService::class.java))
 
         initSettings()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        setupWakeFlags()
+    }
+
+    private fun setupWakeFlags() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun initSettings() {

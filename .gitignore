@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Prywatne pliki edukacyjne
+Agent_Conversation_Learning.md

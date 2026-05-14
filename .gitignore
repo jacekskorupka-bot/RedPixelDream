@@ -14,5 +14,6 @@
 .cxx
 local.properties
 
-# Prywatne pliki edukacyjne
+# Prywatne pliki edukacyjne i logi
 Agent_Conversation_Learning.md
+Agent_projekt.md

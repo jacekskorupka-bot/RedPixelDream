@@ -43,6 +43,12 @@ class MyDreamService : DreamService() {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
+        // Sprawdzenie czy telefon się ładuje - jeśli nie, wyłączamy wygaszacz natychmiast
+        if (!isDeviceCharging()) {
+            finish()
+            return
+        }
+
         isInteractive = false
         isFullscreen = true
 
@@ -78,6 +84,13 @@ class MyDreamService : DreamService() {
 
         // Uruchomienie ochrony przed wypaleniem
         handler.post(moveRunnable)
+    }
+
+    private fun isDeviceCharging(): Boolean {
+        val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        return status == BatteryManager.BATTERY_STATUS_CHARGING || 
+               status == BatteryManager.BATTERY_STATUS_FULL
     }
 
     private fun applyColors() {

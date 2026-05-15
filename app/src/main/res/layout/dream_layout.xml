@@ -92,21 +92,24 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- SEKCJA 3: STATUS (5%) -->
-    <RelativeLayout
+    <!-- SEKCJA 3: STATUS (7%) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"
+        android:layout_weight="7"
         android:background="#0A0000"
+        android:orientation="horizontal"
         android:paddingStart="24dp"
-        android:paddingEnd="24dp">
+        android:paddingEnd="24dp"
+        android:paddingBottom="12dp"
+        android:weightSum="3"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/status_info"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
+            android:layout_weight="1"
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@string/battery_placeholder"
@@ -115,9 +118,10 @@
 
         <TextView
             android:id="@+id/weather_info"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:gravity="center"
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@string/weather_loading"
@@ -126,12 +130,12 @@
 
         <TextView
             android:id="@+id/alarm_info"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:layout_weight="1"
+            android:gravity="end"
             android:text="@string/alarm_none"
             android:textColor="#FF8800"
             android:textSize="14sp" />
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

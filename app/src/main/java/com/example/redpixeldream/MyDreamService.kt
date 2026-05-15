@@ -7,8 +7,6 @@ import android.service.dreams.DreamService
 import android.widget.TextView
 import android.widget.TextClock
 import android.graphics.Color
-import android.view.Gravity
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.content.Intent
 import android.content.IntentFilter
@@ -48,7 +46,7 @@ class MyDreamService : DreamService() {
         isInteractive = false
         isFullscreen = true
 
-        val prefs = getSharedPreferences("dream_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
         val clockColor = prefs.getInt("clock_color", Color.RED)
         val brightnessToApply = getEffectiveBrightness(prefs)
 
@@ -111,7 +109,7 @@ class MyDreamService : DreamService() {
         val cal = Calendar.getInstance()
         val today = cal[Calendar.DAY_OF_MONTH]
         
-        cal.set(Calendar.DAY_OF_MONTH, 1)
+        cal[Calendar.DAY_OF_MONTH] = 1
         val monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())?.uppercase()
         val firstDayOfWeek = cal[Calendar.DAY_OF_WEEK] 
         
@@ -130,8 +128,8 @@ class MyDreamService : DreamService() {
         var todayStart = -1
         var todayEnd = -1
 
-        for (i in offset until offset + daysInMonth) {
-            val currentDay = i - offset + 1
+        for (i in offset until (offset + daysInMonth)) {
+            val currentDay = (i - offset) + 1
             val dayStr = currentDay.toString().padStart(2)
             
             if (currentDay == today) {
@@ -155,18 +153,18 @@ class MyDreamService : DreamService() {
             spannable.setSpan(
                 android.text.style.BackgroundColorSpan(clockColor),
                 todayStart, todayEnd, 
-                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
             // Tekst: Czarny (kontrast)
             spannable.setSpan(
                 android.text.style.ForegroundColorSpan(Color.BLACK),
                 todayStart, todayEnd, 
-                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
             spannable.setSpan(
                 android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
                 todayStart, todayEnd,
-                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
         }
         
@@ -202,7 +200,7 @@ class MyDreamService : DreamService() {
 
         val projection = arrayOf(
             CalendarContract.Instances.TITLE,
-            CalendarContract.Instances.BEGIN
+            CalendarContract.Instances.BEGIN,
         )
 
         val cursor = CalendarContract.Instances.query(
@@ -256,7 +254,7 @@ class MyDreamService : DreamService() {
     }
 
     private fun updateAlarmInfo() {
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         val nextAlarm = alarmManager.nextAlarmClock
         
         val alarmTextView = findViewById<TextView>(R.id.alarm_info)
@@ -273,8 +271,8 @@ class MyDreamService : DreamService() {
         val autoNight = prefs.getBoolean("auto_night", true)
         val userBrightness = prefs.getFloat("brightness", 0.03f)
         if (autoNight) {
-            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-            if (hour >= 22 || hour < 6) {
+            val hour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+            if (hour in 22..23 || hour in 0..5) {
                 return 0.01f
             }
         }
@@ -285,7 +283,7 @@ class MyDreamService : DreamService() {
         val weatherTextView = findViewById<TextView>(R.id.weather_info) ?: return
         
         if (checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            weatherTextView.text = "Brak uprawnień lokalizacji"
+            weatherTextView.text = getString(R.string.no_location_permission)
             return
         }
 
@@ -319,9 +317,9 @@ class MyDreamService : DreamService() {
                         weatherTextView.text = getString(R.string.weather_format, cityName, description, temp)
                     }
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 handler.post {
-                    weatherTextView.text = "Błąd pogody"
+                    weatherTextView.text = getString(R.string.weather_error)
                 }
             }
         }

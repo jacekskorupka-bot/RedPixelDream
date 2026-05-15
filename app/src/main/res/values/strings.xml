@@ -8,6 +8,8 @@
     <string name="today_header">DZIŚ:\n</string>
     <string name="tomorrow_header">JUTRO:\n</string>
     <string name="no_events_today_tomorrow">Brak wydarzeń na dziś i jutro</string>
-    <string name="weather_loading">Pobieranie pogody...</string>
+    <string name="weather_loading">Pobieranie pogody…</string>
     <string name="weather_format">%1$s: %2$s, %3$.1f°C</string>
+    <string name="no_location_permission">Brak uprawnień lokalizacji</string>
+    <string name="weather_error">Błąd pogody</string>
 </resources>

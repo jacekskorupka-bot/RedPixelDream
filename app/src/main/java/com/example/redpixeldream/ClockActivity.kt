@@ -12,7 +12,6 @@ import android.graphics.Typeface
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.BatteryManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -27,6 +26,8 @@ import android.view.WindowManager
 import android.widget.TextView
 import android.widget.TextClock
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import org.json.JSONObject
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -53,7 +54,13 @@ class ClockActivity : AppCompatActivity() {
         setContentView(R.layout.dream_layout)
         dreamContainer = findViewById(R.id.dream_container)
 
-        val prefs = getSharedPreferences("dream_prefs", Context.MODE_PRIVATE)
+        ViewCompat.setOnApplyWindowInsetsListener(dreamContainer) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom + 12) // Dodatkowe 12px zapasu
+            insets
+        }
+
+        val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
         clockColor = prefs.getInt("clock_color", Color.RED)
         val brightnessToApply = getEffectiveBrightness(prefs)
 
@@ -74,8 +81,8 @@ class ClockActivity : AppCompatActivity() {
         val autoNight = prefs.getBoolean("auto_night", true)
         val userBrightness = prefs.getFloat("brightness", 0.03f)
         if (autoNight) {
-            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-            if (hour >= 22 || hour < 6) {
+            val hour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+            if ((hour in 22..23) || (hour in 0..5)) {
                 return 0.01f
             }
         }
@@ -83,13 +90,15 @@ class ClockActivity : AppCompatActivity() {
     }
 
     private fun setupWakeFlags() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        }
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_FULLSCREEN or
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD)
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                    @Suppress("DEPRECATION")
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN or
+                    @Suppress("DEPRECATION")
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD,
+        )
     }
 
     private fun applyColors() {
@@ -120,7 +129,7 @@ class ClockActivity : AppCompatActivity() {
     private fun generateMonthGrid(): CharSequence {
         val cal = Calendar.getInstance()
         val today = cal[Calendar.DAY_OF_MONTH]
-        cal.set(Calendar.DAY_OF_MONTH, 1)
+        cal[Calendar.DAY_OF_MONTH] = 1
         val monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())?.uppercase()
         val firstDayOfWeek = cal[Calendar.DAY_OF_WEEK]
         val offset = if (firstDayOfWeek == Calendar.SUNDAY) 6 else firstDayOfWeek - 2
@@ -199,7 +208,7 @@ class ClockActivity : AppCompatActivity() {
     }
 
     private fun updateAlarmInfo() {
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         val nextAlarm = alarmManager.nextAlarmClock
         val alarmTextView = findViewById<TextView>(R.id.alarm_info)
         if (nextAlarm != null) {
@@ -238,7 +247,7 @@ class ClockActivity : AppCompatActivity() {
 
                     handler.post { weatherTextView.text = getString(R.string.weather_format, cityName, description, temp) }
                 }
-            } catch (e: Exception) { }
+            } catch (ignored: Exception) { }
         }
     }
 

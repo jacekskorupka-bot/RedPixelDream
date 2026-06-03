@@ -25,6 +25,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import android.widget.TextClock
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -75,6 +76,11 @@ class ClockActivity : AppCompatActivity() {
 
         // Zamknij po dotknięciu (jak wygaszacz)
         dreamContainer.setOnClickListener { finish() }
+        
+        // Obsługa przycisku Wstecz
+        onBackPressedDispatcher.addCallback(this) {
+            finish()
+        }
     }
 
     private fun getEffectiveBrightness(prefs: android.content.SharedPreferences): Float {

@@ -37,6 +37,13 @@
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.RedPixelDream" />
 
+        <receiver android:name=".PowerConnectionReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".ProximityService"
             android:enabled="true"

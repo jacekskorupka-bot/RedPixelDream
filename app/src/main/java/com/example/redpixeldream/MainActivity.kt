@@ -49,12 +49,21 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(permissions.toTypedArray(), 100)
         }
 
-        // Uruchomienie usługi wykrywania zbliżenia
-        android.util.Log.d("MainActivity", "Starting ProximityService")
-        startForegroundService(Intent(this, ProximityService::class.java))
+        val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("proximity_enabled", true) && isDeviceCharging()) {
+            android.util.Log.d("MainActivity", "Starting ProximityService")
+            startForegroundService(Intent(this, ProximityService::class.java))
+        }
 
         checkOverlayPermission()
         initSettings()
+    }
+
+    private fun isDeviceCharging(): Boolean {
+        val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        return status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL
     }
 
     private fun checkOverlayPermission() {
@@ -83,12 +92,15 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
         val brightnessSeekBar = findViewById<SeekBar>(R.id.brightness_seekbar)
         val autoNightSwitch = findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_auto_night)
+        val proximitySwitch = findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_proximity)
         val colorGroup = findViewById<RadioGroup>(R.id.color_group)
         val saveButton = findViewById<Button>(R.id.btn_save)
 
         // Load current values
         brightnessSeekBar.progress = (prefs.getFloat("brightness", 0.03f) * 100).toInt()
         autoNightSwitch.isChecked = prefs.getBoolean("auto_night", true)
+        proximitySwitch.isChecked = prefs.getBoolean("proximity_enabled", true)
+        
         when (prefs.getInt("clock_color", android.graphics.Color.RED)) {
             android.graphics.Color.RED -> colorGroup.check(R.id.radio_red)
             "#FFBF00".toColorInt() -> colorGroup.check(R.id.radio_amber)
@@ -98,6 +110,8 @@ class MainActivity : AppCompatActivity() {
         saveButton.setOnClickListener {
             val brightness = brightnessSeekBar.progress / 100f
             val isAutoNight = autoNightSwitch.isChecked
+            val isProximityEnabled = proximitySwitch.isChecked
+            
             val selectedColor = when (colorGroup.checkedRadioButtonId) {
                 R.id.radio_amber -> "#FFBF00".toColorInt()
                 R.id.radio_green -> android.graphics.Color.GREEN
@@ -107,9 +121,18 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().apply {
                 putFloat("brightness", brightness)
                 putBoolean("auto_night", isAutoNight)
+                putBoolean("proximity_enabled", isProximityEnabled)
                 putInt("clock_color", selectedColor)
                 apply()
             }
+
+            // Start or stop the service based on setting
+            if (isProximityEnabled) {
+                startForegroundService(Intent(this, ProximityService::class.java))
+            } else {
+                stopService(Intent(this, ProximityService::class.java))
+            }
+
             Toast.makeText(this, "Ustawienia zapisane", Toast.LENGTH_SHORT).show()
         }
     }

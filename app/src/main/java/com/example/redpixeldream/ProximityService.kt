@@ -1,7 +1,10 @@
 package com.example.redpixeldream
 
 import android.app.*
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -10,7 +13,6 @@ import android.content.pm.ServiceInfo
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
-import android.content.IntentFilter
 import android.util.Log
 import androidx.core.app.NotificationCompat
 
@@ -18,6 +20,19 @@ class ProximityService : Service(), SensorEventListener {
     private val tag = "ProximityService"
     private lateinit var sensorManager: SensorManager
     private var proximitySensor: Sensor? = null
+    
+    private val powerReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+            val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || 
+                            status == BatteryManager.BATTERY_STATUS_FULL
+            
+            if (!isCharging) {
+                Log.d(tag, "Power disconnected. Stopping service.")
+                stopSelf()
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -28,22 +43,36 @@ class ProximityService : Service(), SensorEventListener {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(1, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-        } else {
-            startForeground(1, createNotification())
+        // Rejestracja nasłuchiwania zmian zasilania
+        registerReceiver(powerReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        
+        startForeground(1, createNotification())
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == "STOP_SERVICE") {
+            stopSelf()
+            return START_NOT_STICKY
         }
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun createNotification(): Notification {
         val channelId = "proximity_channel"
         val channel = NotificationChannel(channelId, "Obecność", NotificationManager.IMPORTANCE_LOW)
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+
+        val stopIntent = Intent(this, ProximityService::class.java).apply {
+            action = "STOP_SERVICE"
+        }
+        val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
         
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("Wykrywanie zbliżenia aktywne")
+            .setContentText("Działa tylko podczas ładowania.")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "WYŁĄCZ", stopPendingIntent)
             .build()
     }
 
@@ -51,24 +80,22 @@ class ProximityService : Service(), SensorEventListener {
         val distance = event?.values?.get(0) ?: 1f
         val maxRange = proximitySensor?.maximumRange ?: 0f
         
-        Log.d(tag, "Sensor value: $distance, Max range: $maxRange")
-        
-        // Jeśli coś jest blisko (zazwyczaj 0.0)
         if (distance < maxRange) {
-            // Sprawdzenie czy telefon się ładuje przed wybudzeniem
+            // Dodatkowe sprawdzenie zasilania (bezpieczeństwo)
             if (!isDeviceCharging()) {
-                Log.d(tag, "Object detected but device is NOT charging. Skipping wake up.")
+                Log.d(tag, "Object detected but NOT charging. Stopping.")
+                stopSelf()
                 return
             }
 
-            Log.d(tag, "Object detected and device is charging! Attempting to wake up ClockActivity...")
+            Log.d(tag, "Wake up triggered by proximity.")
             val intent = Intent(this, ClockActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
             try {
                 startActivity(intent)
             } catch (e: Exception) {
-                Log.e(tag, "Failed to start activity: ${e.message}")
+                Log.e(tag, "Error: ${e.message}")
             }
         }
     }
@@ -86,6 +113,7 @@ class ProximityService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         sensorManager.unregisterListener(this)
+        unregisterReceiver(powerReceiver)
         super.onDestroy()
     }
 }

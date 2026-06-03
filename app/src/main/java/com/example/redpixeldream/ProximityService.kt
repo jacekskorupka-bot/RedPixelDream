@@ -9,12 +9,11 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.content.pm.ServiceInfo
 import android.os.BatteryManager
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import java.util.*
 
 class ProximityService : Service(), SensorEventListener {
     private val tag = "ProximityService"
@@ -43,7 +42,6 @@ class ProximityService : Service(), SensorEventListener {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         
-        // Rejestracja nasłuchiwania zmian zasilania
         registerReceiver(powerReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         
         startForeground(1, createNotification())
@@ -69,7 +67,7 @@ class ProximityService : Service(), SensorEventListener {
         
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("Wykrywanie zbliżenia aktywne")
-            .setContentText("Działa tylko podczas ładowania.")
+            .setContentText("Działa podczas ładowania.")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "WYŁĄCZ", stopPendingIntent)
@@ -81,10 +79,18 @@ class ProximityService : Service(), SensorEventListener {
         val maxRange = proximitySensor?.maximumRange ?: 0f
         
         if (distance < maxRange) {
-            // Dodatkowe sprawdzenie zasilania (bezpieczeństwo)
+            val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
+
+            // 1. Check charging
             if (!isDeviceCharging()) {
-                Log.d(tag, "Object detected but NOT charging. Stopping.")
+                Log.d(tag, "Not charging. Stopping.")
                 stopSelf()
+                return
+            }
+
+            // 2. Check "Night only" window
+            if (prefs.getBoolean("night_only_enabled", false) && !isCurrentlyNight(prefs)) {
+                Log.d(tag, "Outside night window. Skipping wake up.")
                 return
             }
 
@@ -105,6 +111,27 @@ class ProximityService : Service(), SensorEventListener {
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         return status == BatteryManager.BATTERY_STATUS_CHARGING || 
                status == BatteryManager.BATTERY_STATUS_FULL
+    }
+
+    private fun isCurrentlyNight(prefs: android.content.SharedPreferences): Boolean {
+        val startHour = prefs.getInt("night_start_hour", 22)
+        val startMinute = prefs.getInt("night_start_minute", 0)
+        val endHour = prefs.getInt("night_end_hour", 6)
+        val endMinute = prefs.getInt("night_end_minute", 0)
+
+        val now = Calendar.getInstance()
+        val currentHour = now.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = now.get(Calendar.MINUTE)
+
+        val currentTime = currentHour * 60 + currentMinute
+        val startTime = startHour * 60 + startMinute
+        val endTime = endHour * 60 + endMinute
+
+        return if (startTime <= endTime) {
+            currentTime in startTime..endTime
+        } else {
+            currentTime >= startTime || currentTime <= endTime
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

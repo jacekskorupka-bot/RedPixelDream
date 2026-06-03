@@ -2,6 +2,7 @@ package com.example.redpixeldream
 
 import android.os.Bundle
 import android.Manifest
+import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -30,12 +31,15 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
+    private var nightStartHour = 22
+    private var nightStartMinute = 0
+    private var nightEndHour = 6
+    private var nightEndMinute = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Wybudzanie ekranu i działanie nad blokadą
         setupWakeFlags()
-        
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
@@ -55,8 +59,19 @@ class MainActivity : AppCompatActivity() {
             startForegroundService(Intent(this, ProximityService::class.java))
         }
 
+        displayVersionInfo()
         checkOverlayPermission()
         initSettings()
+    }
+
+    private fun displayVersionInfo() {
+        val tvVersion = findViewById<TextView>(R.id.tv_version)
+        try {
+            val pInfo = packageManager.getPackageInfo(packageName, 0)
+            tvVersion.text = "v${pInfo.versionName}"
+        } catch (e: Exception) {
+            tvVersion.text = "v1.6"
+        }
     }
 
     private fun isDeviceCharging(): Boolean {
@@ -93,6 +108,9 @@ class MainActivity : AppCompatActivity() {
         val brightnessSeekBar = findViewById<SeekBar>(R.id.brightness_seekbar)
         val autoNightSwitch = findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_auto_night)
         val proximitySwitch = findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_proximity)
+        val nightOnlySwitch = findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_night_only)
+        val tvStartTime = findViewById<TextView>(R.id.tv_start_time)
+        val tvEndTime = findViewById<TextView>(R.id.tv_end_time)
         val colorGroup = findViewById<RadioGroup>(R.id.color_group)
         val saveButton = findViewById<Button>(R.id.btn_save)
 
@@ -100,17 +118,42 @@ class MainActivity : AppCompatActivity() {
         brightnessSeekBar.progress = (prefs.getFloat("brightness", 0.03f) * 100).toInt()
         autoNightSwitch.isChecked = prefs.getBoolean("auto_night", true)
         proximitySwitch.isChecked = prefs.getBoolean("proximity_enabled", true)
-        
+        nightOnlySwitch.isChecked = prefs.getBoolean("night_only_enabled", false)
+
+        nightStartHour = prefs.getInt("night_start_hour", 22)
+        nightStartMinute = prefs.getInt("night_start_minute", 0)
+        nightEndHour = prefs.getInt("night_end_hour", 6)
+        nightEndMinute = prefs.getInt("night_end_minute", 0)
+
+        updateTimeTexts(tvStartTime, tvEndTime)
+
         when (prefs.getInt("clock_color", android.graphics.Color.RED)) {
             android.graphics.Color.RED -> colorGroup.check(R.id.radio_red)
             "#FFBF00".toColorInt() -> colorGroup.check(R.id.radio_amber)
             android.graphics.Color.GREEN -> colorGroup.check(R.id.radio_green)
         }
 
+        tvStartTime.setOnClickListener {
+            TimePickerDialog(this, { _, hour, minute ->
+                nightStartHour = hour
+                nightStartMinute = minute
+                updateTimeTexts(tvStartTime, tvEndTime)
+            }, nightStartHour, nightStartMinute, true).show()
+        }
+
+        tvEndTime.setOnClickListener {
+            TimePickerDialog(this, { _, hour, minute ->
+                nightEndHour = hour
+                nightEndMinute = minute
+                updateTimeTexts(tvStartTime, tvEndTime)
+            }, nightEndHour, nightEndMinute, true).show()
+        }
+
         saveButton.setOnClickListener {
             val brightness = brightnessSeekBar.progress / 100f
             val isAutoNight = autoNightSwitch.isChecked
             val isProximityEnabled = proximitySwitch.isChecked
+            val isNightOnly = nightOnlySwitch.isChecked
             
             val selectedColor = when (colorGroup.checkedRadioButtonId) {
                 R.id.radio_amber -> "#FFBF00".toColorInt()
@@ -122,12 +165,17 @@ class MainActivity : AppCompatActivity() {
                 putFloat("brightness", brightness)
                 putBoolean("auto_night", isAutoNight)
                 putBoolean("proximity_enabled", isProximityEnabled)
+                putBoolean("night_only_enabled", isNightOnly)
+                putInt("night_start_hour", nightStartHour)
+                putInt("night_start_minute", nightStartMinute)
+                putInt("night_end_hour", nightEndHour)
+                putInt("night_end_minute", nightEndMinute)
                 putInt("clock_color", selectedColor)
                 apply()
             }
 
-            // Start or stop the service based on setting
-            if (isProximityEnabled) {
+            // Sync proximity service
+            if (isProximityEnabled && isDeviceCharging()) {
                 startForegroundService(Intent(this, ProximityService::class.java))
             } else {
                 stopService(Intent(this, ProximityService::class.java))
@@ -135,5 +183,10 @@ class MainActivity : AppCompatActivity() {
 
             Toast.makeText(this, "Ustawienia zapisane", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun updateTimeTexts(tvStart: TextView, tvEnd: TextView) {
+        tvStart.text = String.format("Start: %02d:%02d", nightStartHour, nightStartMinute)
+        tvEnd.text = String.format("Koniec: %02d:%02d", nightEndHour, nightEndMinute)
     }
 }

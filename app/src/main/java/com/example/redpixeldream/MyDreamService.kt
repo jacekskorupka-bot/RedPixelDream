@@ -7,7 +7,6 @@ import android.service.dreams.DreamService
 import android.widget.TextView
 import android.widget.TextClock
 import android.graphics.Color
-import android.widget.LinearLayout
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
@@ -43,8 +42,16 @@ class MyDreamService : DreamService() {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        // Sprawdzenie czy telefon się ładuje - jeśli nie, wyłączamy wygaszacz natychmiast
+        val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
+
+        // Sprawdzenie czy telefon się ładuje
         if (!isDeviceCharging()) {
+            finish()
+            return
+        }
+
+        // Sprawdzenie czy uruchomienie tylko w nocy jest aktywne i czy jesteśmy w oknie czasowym
+        if (prefs.getBoolean("night_only_enabled", false) && !isCurrentlyNight(prefs)) {
             finish()
             return
         }
@@ -52,7 +59,6 @@ class MyDreamService : DreamService() {
         isInteractive = false
         isFullscreen = true
 
-        val prefs = getSharedPreferences("dream_prefs", MODE_PRIVATE)
         val clockColor = prefs.getInt("clock_color", Color.RED)
         val brightnessToApply = getEffectiveBrightness(prefs)
 
@@ -91,6 +97,28 @@ class MyDreamService : DreamService() {
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         return status == BatteryManager.BATTERY_STATUS_CHARGING || 
                status == BatteryManager.BATTERY_STATUS_FULL
+    }
+
+    private fun isCurrentlyNight(prefs: android.content.SharedPreferences): Boolean {
+        val startHour = prefs.getInt("night_start_hour", 22)
+        val startMinute = prefs.getInt("night_start_minute", 0)
+        val endHour = prefs.getInt("night_end_hour", 6)
+        val endMinute = prefs.getInt("night_end_minute", 0)
+
+        val now = Calendar.getInstance()
+        val currentHour = now.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = now.get(Calendar.MINUTE)
+
+        val currentTime = currentHour * 60 + currentMinute
+        val startTime = startHour * 60 + startMinute
+        val endTime = endHour * 60 + endMinute
+
+        return if (startTime <= endTime) {
+            currentTime in startTime..endTime
+        } else {
+            // Przechodzi przez północ
+            currentTime >= startTime || currentTime <= endTime
+        }
     }
 
     private fun applyColors() {
@@ -283,11 +311,8 @@ class MyDreamService : DreamService() {
     private fun getEffectiveBrightness(prefs: android.content.SharedPreferences): Float {
         val autoNight = prefs.getBoolean("auto_night", true)
         val userBrightness = prefs.getFloat("brightness", 0.03f)
-        if (autoNight) {
-            val hour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            if (hour in 22..23 || hour in 0..5) {
-                return 0.01f
-            }
+        if (autoNight && isCurrentlyNight(prefs)) {
+            return 0.01f
         }
         return userBrightness
     }

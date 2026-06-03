@@ -86,13 +86,31 @@ class ClockActivity : AppCompatActivity() {
     private fun getEffectiveBrightness(prefs: android.content.SharedPreferences): Float {
         val autoNight = prefs.getBoolean("auto_night", true)
         val userBrightness = prefs.getFloat("brightness", 0.03f)
-        if (autoNight) {
-            val hour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
-            if ((hour in 22..23) || (hour in 0..5)) {
-                return 0.01f
-            }
+        if (autoNight && isCurrentlyNight(prefs)) {
+            return 0.01f
         }
         return userBrightness
+    }
+
+    private fun isCurrentlyNight(prefs: android.content.SharedPreferences): Boolean {
+        val startHour = prefs.getInt("night_start_hour", 22)
+        val startMinute = prefs.getInt("night_start_minute", 0)
+        val endHour = prefs.getInt("night_end_hour", 6)
+        val endMinute = prefs.getInt("night_end_minute", 0)
+
+        val now = Calendar.getInstance()
+        val currentHour = now.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = now.get(Calendar.MINUTE)
+
+        val currentTime = currentHour * 60 + currentMinute
+        val startTime = startHour * 60 + startMinute
+        val endTime = endHour * 60 + endMinute
+
+        return if (startTime <= endTime) {
+            currentTime in startTime..endTime
+        } else {
+            currentTime >= startTime || currentTime <= endTime
+        }
     }
 
     private fun setupWakeFlags() {
@@ -145,8 +163,8 @@ class ClockActivity : AppCompatActivity() {
         val fullText = StringBuilder(sb.toString())
         var todayStart = -1
         var todayEnd = -1
-        for (i in offset until offset + daysInMonth) {
-            val currentDay = i - offset + 1
+        for (i in offset until (offset + daysInMonth)) {
+            val currentDay = (i - offset) + 1
             val dayStr = currentDay.toString().padStart(2)
             if (currentDay == today) {
                 todayStart = fullText.length
